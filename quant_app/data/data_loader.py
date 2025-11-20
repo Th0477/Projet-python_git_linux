@@ -1,39 +1,32 @@
-# data_loader.py
 import yfinance as yf
 import pandas as pd
 
-class DataLoader:
+def get_price(ticker: str, start_date: str = None, end_date: str = None) -> pd.DataFrame:
     """
-    Classe pour récupérer les données financières depuis Yahoo Finance.
+    Récupère les prix de clôture pour un ticker donné.
+
+    Args:
+        ticker (str): Symbole de l'action, ex: "AAPL"
+        start_date (str, optional): Date de début au format 'YYYY-MM-DD'
+        end_date (str, optional): Date de fin au format 'YYYY-MM-DD'
+
+    Returns:
+        pandas.DataFrame: DataFrame avec les dates comme index et une colonne pour le ticker
     """
+    # Télécharger les données depuis Yahoo Finance
+    df = yf.download(ticker, start=start_date, end=end_date, auto_adjust=False)
 
-    def __init__(self):
-        pass  # On pourrait ajouter des configs ici plus tard (API keys, etc.)
+    if df.empty:
+        print(f"Aucune donnée trouvée pour le ticker '{ticker}' entre {start_date} et {end_date}.")
+        return pd.DataFrame()
 
-    def get_prices(self, tickers, start_date=None, end_date=None):
-        """
-        Récupère les prix de clôture pour un ou plusieurs tickers.
+    # Extraire les prix de clôture et s'assurer que c'est un DataFrame
+    close_data = df['Close']
+    if isinstance(close_data, pd.Series):
+        df_close = close_data.to_frame(name=ticker)
+    else:
+        df_close = close_data.copy()
 
-        Args:
-            tickers (str ou list): Symbole(s) des actifs, ex: "AAPL" ou ["AAPL", "MSFT"]
-            start_date (str, optional): Date de début 'YYYY-MM-DD'
-            end_date (str, optional): Date de fin 'YYYY-MM-DD'
+    return df_close
 
-        Returns:
-            pandas.DataFrame: Prix de clôture avec les dates comme index
-                              et les tickers comme colonnes.
-        """
-        if isinstance(tickers, str):
-            tickers = [tickers]
 
-        all_data = pd.DataFrame()
-
-        for ticker in tickers:
-            df = yf.download(ticker, start=start_date, end=end_date)
-            if df.empty:
-                print(f"Aucune donnée trouvée pour le ticker '{ticker}'")
-                continue
-            all_data[ticker] = df['Close']
-
-        if all_data.empty:
-            raise ValueError("Aucune donnée récupérée pour les tickers fournis.")
