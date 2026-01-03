@@ -1,7 +1,9 @@
 #backtesting/metrics.py
 import numpy as np
+import config
+from quant_app.data.economic_data import get_risk_free_rate
 
-def compute_metrics(cum_returns_df):
+def compute_metrics(cum_returns_df, risk_free_rate=None):
     """
     Compute perfomance metrics:
     - Total Returns
@@ -15,6 +17,12 @@ def compute_metrics(cum_returns_df):
     series = cum_returns_df.iloc[:, 0].fillna(1.0)
     if series.empty or len(series) < 2:
         return {k: "N/A" for k in ["Total Return", "CAGR", "Volatility", "Sharpe Ratio", "Max Drawdown"]}
+
+    # Risk free rate recuperation
+    if risk_free_rate is None:
+        rf_rate = get_risk_free_rate() 
+    else:
+        rf_rate = risk_free_rate
 
     # 1. Total Return
     total_return = series.iloc[-1] - 1
@@ -31,11 +39,12 @@ def compute_metrics(cum_returns_df):
 
     # 3. Vol
     daily_rets = series.pct_change().fillna(0)
-    volatility = daily_rets.std() * np.sqrt(252)
+    volatility = daily_rets.std() * np.sqrt(config.TRADING_DAYS)
+    annualized_return = daily_rets.mean() * config.TRADING_DAYS
     
     # 4. Sharpe Ratio
     if volatility > 0:
-        sharpe = (daily_rets.mean() * 252) / volatility
+        sharpe = (annualized_return - rf_rate) / volatility
     else:
         sharpe = 0
         
