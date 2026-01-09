@@ -1,9 +1,10 @@
 # Projet-python_git_linux
-# 📈 Quantitative Asset Analysis Platform (Quant A Module)
 
-**Role:** Quant A - Univariate / Single Asset Analysis  
 **Context:** Python for Finance & Linux Architecture Project
 
+**Role:** Quant A
+code located in quant_app
+# Single Asset
 ## 📖 Overview
 
 This module is the **Univariate component** of a collaborative quantitative analysis platform. It is designed to analyze single financial assets (stocks, forex, commodities) by providing real-time data visualization, advanced backtesting engines, and machine learning forecasting tools.
@@ -39,6 +40,70 @@ Automatically calculates professional risk-adjusted metrics:
 * **Daily Reporter:** Includes a standalone script (`scripts/daily_report.py`) designed to run via CRON.
 * **Logging:** Automatically appends key asset metrics (Price, Volatility, Returns) to a local log file every day at a fixed time.
 
+
+**Role:** Quant B
+code located in quant_b_app
+
+#Multi-Asset Portfolio Analysis
+##Overview
+
+This module is the Multivariate / Portfolio component of a collaborative quantitative finance dashboard.
+
+It extends the single-asset analysis by enabling multi-asset portfolio construction, allocation control, and diversification analysis, all integrated into the same professional Streamlit interface.
+
+##🚀 Key Features
+###1. 📦 Multi-Asset Portfolio Dashboard
+
+Multi-Asset Selection: Allows simultaneous analysis of at least three financial assets.
+
+Dynamic Portfolio Construction: Users can build portfolios using either equal-weight or custom-weight allocation schemes.
+
+Interactive Controls: Real-time adjustment of asset weights and portfolio composition via Streamlit widgets.
+
+###2. ⚖️ Portfolio Allocation & Simulation
+
+Equal-Weight Allocation: Automatic uniform distribution across selected assets.
+
+Custom Weights: User-defined asset weights with strict sum-to-one constraint.
+
+Capital Normalization: Portfolio value is normalized to a base of 100 for intuitive performance comparison.
+
+###3. 📈 Portfolio Performance Visualization
+
+Comparative Time Series: Displays individual asset price evolutions alongside the cumulative portfolio value.
+
+Unified Main Chart: Combines raw asset prices (base 100) and portfolio performance on a single graph.
+
+Visual Diversification Insight: Highlights the smoothing effect of diversification versus single-asset exposure.
+
+###4. 📐 Portfolio Risk & Diversification Metrics
+
+Computes professional portfolio-level metrics:
+
+Annualized Portfolio Return
+
+Annualized Volatility
+
+Correlation Matrix: Measures inter-asset relationships and diversification benefits.
+
+Asset Count Indicator: Displays portfolio composition size in real time.
+
+###5. 🔁 Real-Time Updates & Automation
+
+Auto-Refresh: Portfolio data automatically refreshes every 5 minutes.
+
+Robust Weight Handling: Built-in safeguards prevent invalid allocations (e.g., zero-range sliders).
+
+Linux Deployment Ready: Fully compatible with 24/7 execution on a Linux virtual machine.
+
+###6. 🤝 Integration with Quant A Module
+
+Shared Infrastructure: Reuses the global configuration, date selection, and market data framework.
+
+Metric Reuse: Designed to leverage existing risk metrics from the Quant A backtesting engine where applicable.
+
+Seamless UX: Both Quant A and Quant B modules coexist within a unified Streamlit dashboard.
+
 ---
 
 ## 📂 Project Architecture
@@ -69,6 +134,11 @@ PROJET_ROOT/
 │   │
 │   └── models/              # Machine Learning
 │       └── forecasting.py   # ARIMA Model implementation
+│
+├── quant_b_app/ 	     # Quant B module
+│ ├── portfolio_data.py
+│ ├── portfolio_strategy.py
+│ └── portfolio_metrics.py
 │
 └── scripts/                 # Automation Scripts
     └── daily_report.py      # Standalone script for Cron job
