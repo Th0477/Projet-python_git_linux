@@ -3,6 +3,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import pandas as pd
 import config
+import time
 from quant_app.data.market_data import get_price
 from quant_app.data.economic_data import get_risk_free_rate
 from quant_app.strategies import buy_and_hold, momentum, mean_reversion, regime_switching
@@ -40,6 +41,8 @@ col_left, col_right = st.columns([3, 1], gap="large")
 # Rigth column : Parameters
 with col_right:
     st.header("⚙️ Parameters")
+    auto_refresh = st.checkbox("🔄 Auto-Refresh (5 min)", value=True)
+    st.markdown("---")
     if mode == "Portfolio (Quant B)":
        st.subheader("📦 Portfolio parameters")
 
@@ -80,35 +83,35 @@ with col_right:
                         weights[asset] = round(remaining, 4)
 
                 st.write("Final weights:", weights)
+    else:
+        ticker = st.text_input("Ticker :", config.DEFAULT_TICKER)
+        
+        # Dates
+        start_date = st.date_input("Start Date", config.DEFAULT_START_DATE)
+        end_date = st.date_input("End Date", config.DEFAULT_END_DATE) 
+        
+        st.markdown("---")
+        st.subheader("Strategies")
+        
+        # Momentum Parameters
+        st.caption("Momentum")
+        mom_fast = st.slider("Fast Window", 5, 50, config.MOMENTUM_WINDOW_FAST)
+        mom_slow = st.slider("Slow Window", 20, 200, config.MOMENTUM_WINDOW_SLOW)
+        
+        # Mean Reversion Parameters
+        st.caption("Mean Reversion")
+        mr_window = st.slider("Window", 10, 50, config.MEAN_REVERSION_WINDOW)
+        mr_thresh = st.slider("Threshold", 1.0, 4.0, config.MEAN_REVERSION_THRESHOLD, step=0.1)
+        
+        # Regime Switching Parameters
+        st.caption("Regime Switching")
+        rs_trend = st.slider("Trend Filter", 100, 300, config.REGIME_TREND_WINDOW)
 
-    ticker = st.text_input("Ticker :", config.DEFAULT_TICKER)
-    
-    # Dates
-    start_date = st.date_input("Start Date", config.DEFAULT_START_DATE)
-    end_date = st.date_input("End Date", config.DEFAULT_END_DATE) 
-    
-    st.markdown("---")
-    st.subheader("Strategies")
-    
-    # Momentum Parameters
-    st.caption("Momentum")
-    mom_fast = st.slider("Fast Window", 5, 50, config.MOMENTUM_WINDOW_FAST)
-    mom_slow = st.slider("Slow Window", 20, 200, config.MOMENTUM_WINDOW_SLOW)
-    
-    # Mean Reversion Parameters
-    st.caption("Mean Reversion")
-    mr_window = st.slider("Window", 10, 50, config.MEAN_REVERSION_WINDOW)
-    mr_thresh = st.slider("Threshold", 1.0, 4.0, config.MEAN_REVERSION_THRESHOLD, step=0.1)
-    
-    # Regime Switching Parameters
-    st.caption("Regime Switching")
-    rs_trend = st.slider("Trend Filter", 100, 300, config.REGIME_TREND_WINDOW)
-
-    # Forecast
-    st.markdown("---")
-    st.header("Auto-ARIMA Forecast")
-    enable_forecast = st.checkbox("Enable the ARIMA forecasting")
-    forecast_days = st.slider("Forecast horizon (days)", 7, 90, 30)
+        # Forecast
+        st.markdown("---")
+        st.header("Auto-ARIMA Forecast")
+        enable_forecast = st.checkbox("Enable the ARIMA forecasting")
+        forecast_days = st.slider("Forecast horizon (days)", 7, 90, 30)
     
     fetch_data = st.button("Start the analysis", type="primary")
 
@@ -282,8 +285,10 @@ with col_left:
         st.subheader("🔗 Correlation Matrix")
         corr = correlation_matrix(returns)
         st.dataframe(corr)
-
-
+# Automated refresh every 5min
+if auto_refresh:
+    time.sleep(300)
+    st.rerun
 
 
 

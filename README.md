@@ -105,6 +105,37 @@ Metric Reuse: Designed to leverage existing risk metrics from the Quant A backte
 Seamless UX: Both Quant A and Quant B modules coexist within a unified Streamlit dashboard.
 
 ---
+# ⚙️ Technical Implementation & Deployment
+
+This section details the Linux architecture and automation protocols implemented to meet the 24/7 availability requirement.
+
+### 1. ☁️ AWS Cloud Deployment
+The application is deployed on a cloud virtual machine to ensure continuous uptime.
+* **Provider:** AWS EC2
+* **Instance Type:** t2.micro
+* **OS:** Ubuntu 24.04 LTS
+* **Process Management:** The app runs inside a `tmux` session, allowing it to persist even when SSH connections are closed.
+* **Security:** Ports 8501 (Streamlit) and 22 (SSH) are exposed via AWS Security Groups.
+
+### 2. 🔄 Auto-Refresh Logic (Real-Time)
+To respect the requirement of refreshing data every 5 minutes while preserving API quotas:
+* **Backend (Caching):** We use `@st.cache_data(ttl=300)` on the `get_price` function. This creates a 5-minute buffer where data is served from memory.
+* **Frontend (Trigger):** A dedicated logic in `app.py` checks the "Auto-Refresh" toggle. If active, it executes `time.sleep(300)` followed by `st.rerun()`, forcing a cache invalidation and a fresh data fetch.
+
+### 3. ⏰ Cron Job Automation (Daily Reporting)
+A purely Linux-based automation handles daily reporting independently of the web dashboard.
+* **Script:** `scripts/daily_report.py` (runs independently of Streamlit).
+* **Schedule:** Configured via `crontab` to run daily at 20:00.
+* **Crontab Configuration:**
+    ```bash
+    0 20 * * * /usr/bin/python3 /home/ubuntu/Projet-python_git_linux/scripts/daily_report.py >> /home/ubuntu/Projet-python_git_linux/cron.log 2>&1
+    ```
+
+### 4. 🛠️ Installation & Setup
+1.  **Clone:** `git clone <repo_url>`
+2.  **Install:** `pip install -r requirements.txt --break-system-packages`
+3.  **Run:** `streamlit run app.py`
+
 
 ## 📂 Project Architecture
 
@@ -142,3 +173,5 @@ PROJET_ROOT/
 │
 └── scripts/                 # Automation Scripts
     └── daily_report.py      # Standalone script for Cron job
+
+
