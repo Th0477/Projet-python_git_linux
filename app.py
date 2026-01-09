@@ -9,6 +9,19 @@ from quant_app.strategies import buy_and_hold, momentum, mean_reversion, regime_
 from quant_app.backtesting import metrics
 from quant_app.models import forecasting
 
+#import quant b functions
+from quant_b_app.portfolio_data import get_multi_asset_data
+from quant_b_app.portfolio_strategy import (
+    compute_returns,
+    compute_portfolio_returns,
+    compute_portfolio_value
+)
+from quant_b_app.portfolio_metrics import (
+    portfolio_volatility,
+    portfolio_return,
+    correlation_matrix
+)
+
 # Streamlit configuration
 st.set_page_config(layout="wide")
 st.title(config.APP_TITLE)
@@ -206,6 +219,73 @@ with col_left:
 
         except Exception as e:
             st.error(f"An error occured : {e}")
+
+
+    if fetch_data and mode=="Portfolio (Quant B)" and selected_assets:
+        st.subheader("Portfolio Performance")
+        # 1. Data
+        prices = get_multi_asset_data(
+        selected_assets,
+        str(start_date),
+        str(end_date)
+        )
+
+        # 2. Returns
+        returns = compute_returns(prices)
+
+        # 3. Portfolio returns
+        port_ret = compute_portfolio_returns(returns, weights)
+
+        # 4. Portfolio value (base 100)
+        port_val = compute_portfolio_value(port_ret)
+
+        fig, ax = plt.subplots(figsize=(12, 6))
+
+        # Assets
+        for asset in selected_assets:
+            ax.plot(
+                prices.index,
+                prices[asset] / prices[asset].iloc[0] * 100,
+                alpha=0.5,
+                label=asset
+            )
+
+        # Portfolio
+        ax.plot(
+            port_val.index,
+            port_val,
+            color="black",
+            linewidth=2.5,
+            label="Portfolio"
+        )
+
+        ax.set_title("Multi-Asset Portfolio vs Individual Assets (Base 100)")
+        ax.set_ylabel("Value")
+        ax.legend()
+        ax.grid(True, linestyle="--", alpha=0.3)
+
+        st.pyplot(fig)
+
+        st.subheader("📐 Portfolio Metrics")
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.metric("Annual Return", f"{portfolio_return(port_ret):.2%}")
+
+        with col2:
+            st.metric("Volatility", f"{portfolio_volatility(port_ret):.2%}")
+
+        with col3:
+            st.metric("Nb Assets", len(selected_assets))
+
+        st.subheader("🔗 Correlation Matrix")
+        corr = correlation_matrix(returns)
+        st.dataframe(corr)
+
+
+
+
 
 
 

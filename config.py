@@ -7,6 +7,9 @@ DEFAULT_TICKER = "AAPL"
 DEFAULT_START_DATE = datetime.date(2020, 1, 1)
 DEFAULT_END_DATE = datetime.date.today()
 
+# Portfolio Configuration
+PORTFOLIO_TICKERS = ["AAPL", "MSFT", "GOOGL", "AMZN", "META"]
+
 # Applications's default parameters
 # 1. Momentum
 MOMENTUM_WINDOW_FAST = 20
