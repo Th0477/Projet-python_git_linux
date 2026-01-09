@@ -32,6 +32,15 @@ mode = st.radio(
     ["Single Asset (Quant A)", "Portfolio (Quant B)"]
 )
 
+if "last_mode" not in st.session_state:
+    st.session_state.last_mode = mode
+
+if st.session_state.last_mode != mode:
+    st.session_state.clear()
+    st.session_state.last_mode = mode
+    st.rerun()
+
+
 selected_assets = []
 weights = {}
 
@@ -39,81 +48,84 @@ weights = {}
 col_left, col_right = st.columns([3, 1], gap="large")
 
 # Rigth column : Parameters
-with col_right:
+with col_right: 
     params_placeholder = st.empty()
-    st.header("⚙️ Parameters")
-    auto_refresh = st.checkbox("🔄 Auto-Refresh (5 min)", value=True)
-    st.markdown("---")
-    # Dates
-    start_date = st.date_input("Start Date", config.DEFAULT_START_DATE)
-    end_date = st.date_input("End Date", config.DEFAULT_END_DATE) 
     with params_placeholder.container():
+        st.header("⚙️ Parameters")
+        auto_refresh = st.checkbox("🔄 Auto-Refresh (5 min)", value=True)
+        st.markdown("---")
+        # Dates
+        start_date = st.date_input("Start Date", config.DEFAULT_START_DATE)
+        end_date = st.date_input("End Date", config.DEFAULT_END_DATE)
         if mode == "Portfolio (Quant B)":
             st.subheader("📦 Portfolio parameters")
 
             selected_assets = st.multiselect(
                 "Select assets",
                 options=config.PORTFOLIO_TICKERS,
-                default=config.PORTFOLIO_TICKERS[:3]
+                default=config.PORTFOLIO_TICKERS[:3],
+                key="quant_b_assets"
             )
 
             weight_mode = st.radio(
                 "Weighting scheme",
-                ["Equal weights", "Custom weights"]
+                ["Equal weights", "Custom weights"],
+                key="quant_b_weight_mode"
             )
 
-        if selected_assets:
-                if weight_mode == "Equal weights":
-                    w = 1 / len(selected_assets)
-                    weights = {asset: w for asset in selected_assets}
+            if selected_assets:
+                    if weight_mode == "Equal weights":
+                        w = 1 / len(selected_assets)
+                        weights = {asset: w for asset in selected_assets}
 
-                else:
-                    st.caption("Custom asset weights (must sum to 1)")
-                    remaining = 1.0
+                    else:
+                        st.caption("Custom asset weights (must sum to 1)")
+                        remaining = 1.0
 
-                    for i, asset in enumerate(selected_assets):
-                        if i < len(selected_assets) - 1:
-                            max_weight=round(remaining, 4)
-                            if max_weight <= 0:
-                                weights[asset]=0.0
+                        for i, asset in enumerate(selected_assets):
+                            if i < len(selected_assets) - 1:
+                                max_weight=round(remaining, 4)
+                                if max_weight <= 0:
+                                    weights[asset]=0.0
+                                else:
+                                    weights[asset]=st.slider(
+                                        f"Weight {asset}",
+                                        0.0,
+                                        max_weight,
+                                        max_weight,
+                                        key=f"weight_{asset}"
+                                    )
+                                remaining-=weights[asset]
                             else:
-                                weights[asset]=st.slider(
-                                    f"Weight {asset}",
-                                    0.0,
-                                    max_weight,
-                                    max_weight
-                                )
-                            remaining-=weights[asset]
-                        else:
-                            weights[asset] = round(remaining, 4)
+                                weights[asset] = round(remaining, 4)
 
-                    st.write("Final weights:", weights)
+                        st.write("Final weights:", weights)
 
         elif mode == "Single Asset (Quant A)" :
-            ticker = st.text_input("Ticker :", config.DEFAULT_TICKER)
+            ticker = st.text_input("Ticker :", config.DEFAULT_TICKER, key="quant_a_ticker")
             
             st.markdown("---")
             st.subheader("Strategies")
             
             # Momentum Parameters
             st.caption("Momentum")
-            mom_fast = st.slider("Fast Window", 5, 50, config.MOMENTUM_WINDOW_FAST)
-            mom_slow = st.slider("Slow Window", 20, 200, config.MOMENTUM_WINDOW_SLOW)
+            mom_fast = st.slider("Fast Window", 5, 50, config.MOMENTUM_WINDOW_FAST, key="mom_fast")
+            mom_slow = st.slider("Slow Window", 20, 200, config.MOMENTUM_WINDOW_SLOW, key="mom_slow")
             
             # Mean Reversion Parameters
             st.caption("Mean Reversion")
-            mr_window = st.slider("Window", 10, 50, config.MEAN_REVERSION_WINDOW)
-            mr_thresh = st.slider("Threshold", 1.0, 4.0, config.MEAN_REVERSION_THRESHOLD, step=0.1)
+            mr_window = st.slider("Window", 10, 50, config.MEAN_REVERSION_WINDOW, key="mr_window")
+            mr_thresh = st.slider("Threshold", 1.0, 4.0, config.MEAN_REVERSION_THRESHOLD, step=0.1, key="mr_thresh")
             
             # Regime Switching Parameters
             st.caption("Regime Switching")
-            rs_trend = st.slider("Trend Filter", 100, 300, config.REGIME_TREND_WINDOW)
+            rs_trend = st.slider("Trend Filter", 100, 300, config.REGIME_TREND_WINDOW, key="rs_trend")
 
             # Forecast
             st.markdown("---")
             st.header("Auto-ARIMA Forecast")
-            enable_forecast = st.checkbox("Enable the ARIMA forecasting")
-            forecast_days = st.slider("Forecast horizon (days)", 7, 90, 30)
+            enable_forecast = st.checkbox("Enable the ARIMA forecasting", key="enable_forecast")
+            forecast_days = st.slider("Forecast horizon (days)", 7, 90, 30, key="forecast_days")
 
         fetch_data = st.button("Start the analysis", type="primary")
 
