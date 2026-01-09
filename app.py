@@ -18,12 +18,56 @@ mode = st.radio(
     ["Single Asset (Quant A)", "Portfolio (Quant B)"]
 )
 
+selected_assets = []
+weights = {}
+
 # Layout 
 col_left, col_right = st.columns([3, 1], gap="large")
 
 # Rigth column : Parameters
 with col_right:
     st.header("⚙️ Parameters")
+    if mode == "Portfolio (Quant B)":
+       st.subheader("📦 Portfolio parameters")
+
+       selected_assets = st.multiselect(
+           "Select assets",
+           options=config.PORTFOLIO_TICKERS,
+           default=config.PORTFOLIO_TICKERS[:3]
+       )
+
+       weight_mode = st.radio(
+            "Weighting scheme",
+            ["Equal weights", "Custom weights"]
+        )
+
+       if selected_assets:
+            if weight_mode == "Equal weights":
+                w = 1 / len(selected_assets)
+                weights = {asset: w for asset in selected_assets}
+
+            else:
+                st.caption("Custom asset weights (must sum to 1)")
+                remaining = 1.0
+
+                for i, asset in enumerate(selected_assets):
+                    if i < len(selected_assets) - 1:
+                        max_weight=round(remaining, 4)
+                        if max_weight <= 0:
+                            weights[asset]=0.0
+                        else:
+                            weights[asset]=st.slider(
+                                f"Weight {asset}",
+                                0.0,
+                                max_weight,
+                                max_weight
+                            )
+                        remaining-=weights[asset]
+                    else:
+                        weights[asset] = round(remaining, 4)
+
+                st.write("Final weights:", weights)
+
     ticker = st.text_input("Ticker :", config.DEFAULT_TICKER)
     
     # Dates
@@ -163,6 +207,5 @@ with col_left:
         except Exception as e:
             st.error(f"An error occured : {e}")
 
-with col_left:
-	if fetch_data and mode=="Portfolio (Quant B)":
-		st.subheader("Multi-asset portfolio analysis")
+
+
