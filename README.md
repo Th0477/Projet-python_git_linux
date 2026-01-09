@@ -44,15 +44,15 @@ Automatically calculates professional risk-adjusted metrics:
 **Role:** Quant B
 code located in quant_b_app
 
-#Multi-Asset Portfolio Analysis
-##Overview
+# Multi-Asset Portfolio Analysis
+## Overview
 
 This module is the Multivariate / Portfolio component of a collaborative quantitative finance dashboard.
 
 It extends the single-asset analysis by enabling multi-asset portfolio construction, allocation control, and diversification analysis, all integrated into the same professional Streamlit interface.
 
-##🚀 Key Features
-###1. 📦 Multi-Asset Portfolio Dashboard
+## 🚀 Key Features
+### 1. 📦 Multi-Asset Portfolio Dashboard
 
 Multi-Asset Selection: Allows simultaneous analysis of at least three financial assets.
 
@@ -60,7 +60,7 @@ Dynamic Portfolio Construction: Users can build portfolios using either equal-we
 
 Interactive Controls: Real-time adjustment of asset weights and portfolio composition via Streamlit widgets.
 
-###2. ⚖️ Portfolio Allocation & Simulation
+### 2. ⚖️ Portfolio Allocation & Simulation
 
 Equal-Weight Allocation: Automatic uniform distribution across selected assets.
 
@@ -68,7 +68,7 @@ Custom Weights: User-defined asset weights with strict sum-to-one constraint.
 
 Capital Normalization: Portfolio value is normalized to a base of 100 for intuitive performance comparison.
 
-###3. 📈 Portfolio Performance Visualization
+### 3. 📈 Portfolio Performance Visualization
 
 Comparative Time Series: Displays individual asset price evolutions alongside the cumulative portfolio value.
 
@@ -76,7 +76,7 @@ Unified Main Chart: Combines raw asset prices (base 100) and portfolio performan
 
 Visual Diversification Insight: Highlights the smoothing effect of diversification versus single-asset exposure.
 
-###4. 📐 Portfolio Risk & Diversification Metrics
+### 4. 📐 Portfolio Risk & Diversification Metrics
 
 Computes professional portfolio-level metrics:
 
@@ -88,7 +88,7 @@ Correlation Matrix: Measures inter-asset relationships and diversification benef
 
 Asset Count Indicator: Displays portfolio composition size in real time.
 
-###5. 🔁 Real-Time Updates & Automation
+### 5. 🔁 Real-Time Updates & Automation
 
 Auto-Refresh: Portfolio data automatically refreshes every 5 minutes.
 
@@ -96,7 +96,7 @@ Robust Weight Handling: Built-in safeguards prevent invalid allocations (e.g., z
 
 Linux Deployment Ready: Fully compatible with 24/7 execution on a Linux virtual machine.
 
-###6. 🤝 Integration with Quant A Module
+### 6. 🤝 Integration with Quant A Module
 
 Shared Infrastructure: Reuses the global configuration, date selection, and market data framework.
 
