@@ -13,6 +13,11 @@ from quant_app.models import forecasting
 st.set_page_config(layout="wide")
 st.title(config.APP_TITLE)
 
+mode = st.radio(
+    "Choose analysis mode",
+    ["Single Asset (Quant A)", "Portfolio (Quant B)"]
+)
+
 # Layout 
 col_left, col_right = st.columns([3, 1], gap="large")
 
@@ -52,7 +57,7 @@ with col_right:
 
 # Left column : Results
 with col_left:
-    if fetch_data:
+    if fetch_data and mode=="Single Asset (Quant A)":
         try:
             # 1. Data laoding
             with st.spinner('Téléchargement des données...'):
@@ -157,3 +162,7 @@ with col_left:
 
         except Exception as e:
             st.error(f"An error occured : {e}")
+
+with col_left:
+	if fetch_data and mode=="Portfolio (Quant B)":
+		st.subheader("Multi-asset portfolio analysis")
